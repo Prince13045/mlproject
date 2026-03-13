@@ -1,5 +1,6 @@
 numpy
 pandas
+dill
 seaborn
 scikit-learn
 catboost
