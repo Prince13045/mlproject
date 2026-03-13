@@ -1,53 +1,63 @@
 import os
 import sys
-from src.exception import Custom_Exception
+from src.exception import CustomException
 from src.logger import logging
-import pandas as pd 
+import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
-from src.components.data_transformation import datatransformation
-from src.components.data_transformation import datatransformationconfig
-from src.components.model_trainer import modeltrainingconfig
-from src.components.model_trainer import modeltrainer
 
+from src.components.data_transformation import DataTransformation
+from src.components.data_transformation import DataTransformationConfig
 
-
+from src.components.model_trainer import ModelTrainerConfig
+from src.components.model_trainer import ModelTrainer
 @dataclass
-class datainjectionconfig:
-    train_data_path:str=os.path.join('artifacts',"train.csv")
-    test_data_path:str=os.path.join('artifacts',"test.csv")
-    raw_data_path:str=os.path.join('artifacts',"data.csv")
+class DataIngestionConfig:
+    train_data_path: str=os.path.join('artifacts',"train.csv")
+    test_data_path: str=os.path.join('artifacts',"test.csv")
+    raw_data_path: str=os.path.join('artifacts',"data.csv")
 
-class datainjection:
+class DataIngestion:
     def __init__(self):
-        self.injection_config=datainjectionconfig()
-    def initiate_datainjection(self):
-        logging.info("Entered the injection or component")
+        self.ingestion_config=DataIngestionConfig()
+
+    def initiate_data_ingestion(self):
+        logging.info("Entered the data ingestion method or component")
         try:
-            df=pd.read_csv(r'notebook\data\stud.csv')
-            logging.info('read the dataset as dataframe')
-            os.makedirs(os.path.dirname(self.injection_config.train_data_path),exist_ok=True)
-            df.to_csv(self.injection_config.raw_data_path,index=False,header=True)
-            logging.info('train_test split initiated')
+            df=pd.read_csv('notebook\data\stud.csv')
+            logging.info('Read the dataset as dataframe')
+
+            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
+
+            df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
+
+            logging.info("Train test split initiated")
             train_set,test_set=train_test_split(df,test_size=0.2,random_state=42)
-            train_set.to_csv(self.injection_config.train_data_path,index=False,header=True)
-            test_set.to_csv(self.injection_config.test_data_path,index=False,header=True)
-            logging.info('injection of data is completed ')
+
+            train_set.to_csv(self.ingestion_config.train_data_path,index=False,header=True)
+
+            test_set.to_csv(self.ingestion_config.test_data_path,index=False,header=True)
+
+            logging.info("Inmgestion of the data iss completed")
+
             return(
-                self.injection_config.train_data_path,
-                self.injection_config.test_data_path,
+                self.ingestion_config.train_data_path,
+                self.ingestion_config.test_data_path
+
             )
         except Exception as e:
-            raise Custom_Exception(e,sys)
+            raise CustomException(e,sys)
         
-
 if __name__=="__main__":
-    obj=datainjection()
-    train_data,test_data=obj.initiate_datainjection()
-    data_transformation=datatransformation()
-    train_arr, test_arr,preprocessor_path = data_transformation.initiate_data_transformation(train_data, test_data)
+    obj=DataIngestion()
+    train_data,test_data=obj.initiate_data_ingestion()
 
-    model_trainer_obj = modeltrainer()
+    data_transformation=DataTransformation()
+    train_arr,test_arr,_=data_transformation.initiate_data_transformation(train_data,test_data)
 
-    print(model_trainer_obj.initiate_model_trainer(train_arr, test_arr,preprocessor_path))
+    modeltrainer=ModelTrainer()
+    print(modeltrainer.initiate_model_trainer(train_arr,test_arr))
+
+
 
