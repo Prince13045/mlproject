@@ -7,6 +7,10 @@ from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 from src.components.data_transformation import datatransformation
 from src.components.data_transformation import datatransformationconfig
+from src.components.model_trainer import modeltrainingconfig
+from src.components.model_trainer import modeltrainer
+
+
 
 @dataclass
 class datainjectionconfig:
@@ -20,7 +24,7 @@ class datainjection:
     def initiate_datainjection(self):
         logging.info("Entered the injection or component")
         try:
-            df=pd.read_csv('notebook\data\stud.csv')
+            df=pd.read_csv(r'notebook\data\stud.csv')
             logging.info('read the dataset as dataframe')
             os.makedirs(os.path.dirname(self.injection_config.train_data_path),exist_ok=True)
             df.to_csv(self.injection_config.raw_data_path,index=False,header=True)
@@ -41,6 +45,9 @@ if __name__=="__main__":
     obj=datainjection()
     train_data,test_data=obj.initiate_datainjection()
     data_transformation=datatransformation()
-    data_transformation.initiate_data_transformation(train_data,test_data)
+    train_arr, test_arr,preprocessor_path = data_transformation.initiate_data_transformation(train_data, test_data)
 
+    model_trainer_obj = modeltrainer()
+
+    print(model_trainer_obj.initiate_model_trainer(train_arr, test_arr,preprocessor_path))
 
